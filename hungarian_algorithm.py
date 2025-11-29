@@ -23,4 +23,3 @@ def hungarian_algorith(matrix: list[list]) -> int:
             matrix[row_index][donor] -= min_recipient
 
     ...
-
