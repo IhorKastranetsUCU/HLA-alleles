@@ -1,5 +1,29 @@
 from copy import deepcopy
 
+
+def reducing(matrix: list[list]) -> list[list]:
+    """
+    Reduce the matrix by subtracting the row minima and then the column minima.
+
+    :param matrix: list of lists with numeric cost values
+    :return: reduced matrix
+    """
+    size = len(matrix)
+
+    # Subtract row minima
+    for i, row in enumerate(matrix):
+        min_val = min(row)
+        for j in range(len(row)):
+            matrix[i][j] -= min_val
+
+    # Subtract column minima
+    for j in range(size):
+        min_val = min(matrix[i][j] for i in range(size))
+        for i in range(size):
+            matrix[i][j] -= min_val
+
+    return matrix
+
 def zero_positions(matrix: list[list]) -> list:
     """
 
@@ -29,9 +53,13 @@ def zero_positions(matrix: list[list]) -> list:
 
     return list(col_zeros | row_zeros)
 
+print(zero_positions([[0, 6, 0, 3], [13, 0, 5, 4], [4, 3, 0, 0], [0, 9, 2, 13]]))
+
 
 def changing(matrix):
-    matrix = deepcopy(matrix)
+    origin_matrix = deepcopy(matrix)
+    selected_rows = []
+    selected_cols = []
 
     while any(0 in row for row in matrix):
         row_zeros = {i: row.count(0) for i, row in enumerate(matrix)}
@@ -44,12 +72,25 @@ def changing(matrix):
             rows_to_remove = [i for i, count in row_zeros.items() if count == max_zero_row]
             for i in sorted(rows_to_remove, reverse=True):
                 matrix.pop(i)
+                selected_rows.append(i)
         else:
             cols_to_remove = [j for j, count in col_zeros.items() if count == max_zero_col]
             for j in sorted(cols_to_remove, reverse=True):
                 for row in matrix:
                     row.pop(j)
-    ...
+                selected_cols.append(j)
+
+    min_el = min(min(row) for row in matrix)
+    for i, row in enumerate(origin_matrix):
+        for j in range(len(row)):
+            if i in selected_rows and j in selected_cols:
+                origin_matrix[i][j] += min_el
+            elif i in selected_rows or j in selected_cols:
+                pass
+            else:
+                origin_matrix[i][j] -= min_el
+
+    return origin_matrix
 
 
 def hungarian_algorith(matrix: list[list]) -> int:
@@ -61,17 +102,11 @@ def hungarian_algorith(matrix: list[list]) -> int:
     :param matrix: list of lists with numeric cost values (rows = recipients, columns = donors)
     :return: list of tuples (row_index, column_index) representing optimal assignments
     """
-    basic_matrix = deepcopy(matrix)
+    reduced_matric = reducing(matrix)
     size = len(matrix)
-
-    for i, recipients in enumerate(matrix):
-        min_donor = min(recipients)
-        for j, donor in enumerate(recipients):
-            matrix[i][j] = donor - min_donor
-
-    for donor in range(size):
-        min_recipient = min(matrix[row_index][donor] for row_index in range(size))
-        for row_index in range(size):
-            matrix[row_index][donor] -= min_recipient
+    print(zero_positions(reduced_matric))
+    print(reduced_matric)
+    print(changing(reduced_matric))
+    print(zero_positions(changing(reduced_matric)))
 
 hungarian_algorith([[2, 10, 9, 7], [15, 4, 14, 8], [13, 14, 16, 11], [4, 15, 13, 19]])
