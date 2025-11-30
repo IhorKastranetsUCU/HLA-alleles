@@ -1,5 +1,57 @@
 from copy import deepcopy
 
+def zero_positions(matrix: list[list]) -> list:
+    """
+
+    :param matrix:
+    :return:
+    """
+    size = len(matrix)
+
+    row_zeros = set()
+    col_zeros = set()
+    visited = {"row": set(), "col": set()}
+
+    for i, row in enumerate(matrix):
+        if row.count(0) == 1:
+            if i not in visited["row"] and row.index(0) not in visited["col"]:
+                row_zeros.add((i, row.index(0)))
+                visited["row"].add(i)
+                visited["col"].add(row.index(0))
+
+    for col in range(size):
+        col_vals = [matrix[row][col] for row in range(size)]
+        if col_vals.count(0) == 1:
+            if col_vals.index(0) not in visited["row"] and col not in visited["col"]:
+                col_zeros.add((col_vals.index(0), col))
+                visited["row"].add(col_vals.index(0))
+                visited["col"].add(col)
+
+    return list(col_zeros | row_zeros)
+
+
+def changing(matrix):
+    matrix = deepcopy(matrix)
+
+    while any(0 in row for row in matrix):
+        row_zeros = {i: row.count(0) for i, row in enumerate(matrix)}
+        col_zeros = {j: [matrix[i][j] for i in range(len(matrix))].count(0) for j in range(len(matrix[0]))}
+
+        max_zero_row = max(row_zeros.values()) if row_zeros else 0
+        max_zero_col = max(col_zeros.values()) if col_zeros else 0
+
+        if max_zero_row >= max_zero_col:
+            rows_to_remove = [i for i, count in row_zeros.items() if count == max_zero_row]
+            for i in sorted(rows_to_remove, reverse=True):
+                matrix.pop(i)
+        else:
+            cols_to_remove = [j for j, count in col_zeros.items() if count == max_zero_col]
+            for j in sorted(cols_to_remove, reverse=True):
+                for row in matrix:
+                    row.pop(j)
+    ...
+
+
 def hungarian_algorith(matrix: list[list]) -> int:
     """
     Function takes a cost matrix and returns the optimal assignments that minimize the total cost.
@@ -22,4 +74,4 @@ def hungarian_algorith(matrix: list[list]) -> int:
         for row_index in range(size):
             matrix[row_index][donor] -= min_recipient
 
-    ...
+hungarian_algorith([[2, 10, 9, 7], [15, 4, 14, 8], [13, 14, 16, 11], [4, 15, 13, 19]])
