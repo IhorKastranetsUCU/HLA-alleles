@@ -17,6 +17,8 @@ def generate_person_alleles():
 
 
 def generate_database(recipients: int, donors: int):
+  if recipients > donors:
+    return None, None
   recipients_list = []
   for _ in range(recipients):
     recipients_list.append(generate_person_alleles())
