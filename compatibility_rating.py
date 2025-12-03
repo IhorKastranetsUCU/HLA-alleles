@@ -1,10 +1,16 @@
-def compatibility_rating(recepients: list[set], donors: list[set]) -> list[list]:
-    matrix = [[0 for _ in range(len(donors))] for _ in range(len(recepients))]
+def compatibility_rating(recepients: list[set], donors: list[set], cost_matrix=False) -> list[list]:
+    if cost_matrix:
+        matrix = [[2 for _ in range(len(donors))] for _ in range(len(recepients))]
+    else:
+        matrix = [[0 for _ in range(len(donors))] for _ in range(len(recepients))]
     # len(donors) must be taken everywhere for n x n matrix
     for row, r_alleles in enumerate(recepients):
         for column, d_alleles in enumerate(donors):
             if r_alleles == d_alleles:
-               matrix[row][column] = 2
+                if cost_matrix: 
+                    matrix[row][column] = 0
+                else:
+                    matrix[row][column] = 2
             else:
                 for allele in d_alleles:
                     if allele in r_alleles:
@@ -13,7 +19,7 @@ def compatibility_rating(recepients: list[set], donors: list[set]) -> list[list]
     return matrix
 
 '''
-As an example
+# As an example
 print(compatibility_rating(
     [
         {"A*03:01", "B*15:01", "C*04:01"},
@@ -31,4 +37,6 @@ print(compatibility_rating(
 Output will be -> [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 2]]
 
 
+and if we use cost_matrix = True, output will be:
+[[1, 2, 2, 2], [2, 1, 2, 2], [2, 2, 1, 0]]
 '''
