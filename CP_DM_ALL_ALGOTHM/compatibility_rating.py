@@ -1,0 +1,39 @@
+import numpy as np
+
+def compatibility_rating(recepients: list[set], donors: list[set], cost_matrix=False) -> np.ndarray[np.ndarray]:
+    '''
+    Makes compatibility rating or cost matrix
+    Takes recepients and donors lists
+    Returns
+
+    >>> recep = [{"A*03:01", "B*15:01", "C*04:01"}, {"A*24:02", "B*18:01", "C*12:03"}, {"A*02:05", "B*44:02", "C*05:01"}]
+    >>> donor = [{"A*03:01", "B*15:02", "C*04:01"}, {"A*24:02", "B*40:01", "C*12:02"}, {"A*01:01", "B*44:02", "C*05:09"}, {"A*02:05", "B*44:02", "C*05:01"}]
+    >>> compatibility_rating(recep, donor)
+    array([[1, 0, 0, 0],
+           [0, 1, 0, 0],
+           [0, 0, 1, 2]])
+    >>> compatibility_rating(recep, donor, True)
+    array([[1, 2, 2, 2],
+           [2, 1, 2, 2],
+           [2, 2, 1, 0]])
+    >>> type(compatibility_rating(recep, donor))
+    <class 'numpy.ndarray'>
+    '''
+    if cost_matrix:
+        matrix = [[2 for _ in range(len(donors))] for _ in range(len(recepients))]
+    else:
+        matrix = [[0 for _ in range(len(donors))] for _ in range(len(recepients))]
+    # len(donors) must be taken everywhere for n x n matrix
+    for row, r_alleles in enumerate(recepients):
+        for column, d_alleles in enumerate(donors):
+            if r_alleles == d_alleles:
+                if cost_matrix:
+                    matrix[row][column] = 0
+                else:
+                    matrix[row][column] = 2
+            else:
+                for allele in d_alleles:
+                    if allele in r_alleles:
+                        matrix[row][column] = 1
+                        break
+    return np.array(matrix)
