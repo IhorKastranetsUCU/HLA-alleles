@@ -57,3 +57,19 @@ def generate_person_alleles():
                 allele = f"{locus}*{group:02}:{spec_prot:02}"
                 person_alleles.add(allele)
     return person_alleles
+
+
+def generate_database(recipients: int, donors: int, donor = False, recipient = False):
+    if recipients > donors:
+        return None, None
+    recipients_list = []
+    for _ in range(recipients):
+        recipients_list.append(generate_person_alleles())
+    donors_list = []
+    for _ in range(donors):
+        donors_list.append(generate_person_alleles())
+    if donor:
+        return donors_list
+    if recipient:
+        return recipients_list
+    return recipients_list, donors_list
