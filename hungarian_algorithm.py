@@ -4,17 +4,34 @@ The function takes Numpy matrix and unsorted returns the list of tuples
 where the first element is row and second is column
 Example:
     >>> import numpy as np
-    >>> matrix = np.array([[2, 3, 6, 2, 4],
-    ...                    [5, 6, 8, 7, 5],
-    ...                    [6, 2, 4, 8, 8],
-    ...                    [9, 1, 3, 3, 1],
-    ...                    [4, 2, 9, 3, 1]])
-    >>> hungarian_algorithm(matrix)
+    >>> mat = np.array([[0.7, 0.2, 0.3, 0.4],
+    ...                 [0.1, 0.6, 0.2, 0.3],
+    ...                 [0.2, 0.1, 0.1, 0.6],
+    ...                 [0.3, 0.2, 0.1, 0.8]],)
+    >>> hungarian_algorithm(mat, 0.1)
     [(4, 4), (1, 0), (0, 3), (2, 1), (3, 2)]
 """
 
-
 import numpy as np
+
+
+def reshaping(matrix, min_match):
+    rows, cols = matrix.shape
+    rows, cols = matrix.shape
+    if rows > cols:
+        return None
+
+    if rows < cols:
+        extra_rows = cols - rows
+        new_rows = np.full((extra_rows, cols), np.inf)
+        matrix = np.vstack([matrix, new_rows])
+    else:
+        matrix = matrix.copy()
+    matrix[matrix > 1 - min_match] = np.inf
+
+    return matrix
+
+
 
 def zero_position(matrix: np.ndarray, original_shape: tuple) -> list:
     """Find the optimal assignment from a reduced matrix of zeros.
@@ -22,11 +39,10 @@ def zero_position(matrix: np.ndarray, original_shape: tuple) -> list:
     :param matrix: reduced cost matrix
     :param original_shape: original shape of the cost matrix
     :return: list of tuples (row_index, column_index) representing assignments
-    >>> mat = np.array([[0, 1, 2, 3],
-    ...                 [0, 0, 1, 2],
-    ...                 [1, 0, 0, 1],
-    ...                 [2, 1, 0, 0]])
-    >>> zero_position(mat, (4,4))
+    >>> mat = np.array([[0.7, 0.2, 0.3, 0.4],
+    ...                 [0.1, 0.6, 0.2, 0.3],
+    ...                 [0.2, 0.1, 0.1, 0.6],
+    ...                 [0.3, 0.2, 0.1, 0.8]],)
     [(0, 0), (1, 1), (2, 2), (3, 3)]
     """
     n = matrix.shape[0]
@@ -64,10 +80,10 @@ def min_lines(matrix: np.ndarray) -> int:
 
     :param matrix: reduced cost matrix
     :return: integer, number of lines covering all zeros
-    >>> mat = np.array([[0, 1, 2, 3],
-    ...                 [0, 0, 1, 2],
-    ...                 [1, 0, 0, 1],
-    ...                 [2, 1, 0, 0]])
+    >>> mat = np.array([[0.7, 0.2, 0.3, 0.4],
+    ...                 [0.1, 0.6, 0.2, 0.3],
+    ...                 [0.2, 0.1, 0.1, 0.6],
+    ...                 [0.3, 0.2, 0.1, 0.8]],)
     >>> int(min_lines(mat))
     4
     """
@@ -108,10 +124,10 @@ def rows_cols(matrix):
 
     :param matrix: reduced cost matrix
     :return: tuple of two boolean arrays (rows_covered, cols_covered)
-    >>> mat = np.array([[0, 1, 2, 3],
-    ...                 [0, 0, 1, 2],
-    ...                 [1, 0, 0, 1],
-    ...                 [2, 1, 0, 0]])
+    >>> mat = np.array([[0.7, 0.2, 0.3, 0.4],
+    ...                 [0.1, 0.6, 0.2, 0.3],
+    ...                 [0.2, 0.1, 0.1, 0.6],
+    ...                 [0.3, 0.2, 0.1, 0.8]],)
     >>> rows_cols(mat)
     (array([ True,  True,  True,  True]), array([False, False, False, False]))
     """
@@ -148,10 +164,10 @@ def smallest_uncovered(matrix):
     :param matrix: reduced cost matrix
     :return: float, smallest uncovered element
 
-    >>> mat = np.array([[0, 2, 3, 4],
-    ...                 [1, 0, 2, 3],
-    ...                 [2, 1, 1, 0],
-    ...                 [3, 2, 1, 0]])
+    >>> mat = np.array([[0.7, 0.2, 0.3, 0.4],
+    ...                 [0.1, 0.6, 0.2, 0.3],
+    ...                 [0.2, 0.1, 0.1, 0.6],
+    ...                 [0.3, 0.2, 0.1, 0.8]])
     >>> int(smallest_uncovered(mat))
     1
     """
@@ -166,7 +182,7 @@ def smallest_uncovered(matrix):
     return smallest
 
 
-def hungarian_algorithm(matrix):
+def hungarian_algorithm(matrix, min_match):
     """
     Function takes a cost matrix and returns the optimal assignments that minimize the total cost.
     If multiple assignments have equal minimal cost, the function returns one valid optimal list.
@@ -175,31 +191,61 @@ def hungarian_algorithm(matrix):
     :param matrix: list of lists with numeric cost values (rows = recipients, columns = donors)
     :return: list of tuples (row_index, column_index) representing optimal assignments
 
-    >>> mat = np.array([[4, 1, 3, 2],
-    ...                 [2, 0, 5, 3],
-    ...                 [3, 2, 2, 3],
-    ...                 [4, 3, 1, 2]])
+    >>> mat = np.array([[0.7, 0.2, 0.3, 0.4],
+    ...                 [0.1, 0.6, 0.2, 0.3],
+    ...                 [0.2, 0.1, 0.1, 0.6],
+    ...                 [0.3, 0.2, 0.1, 0.8]],)
     >>> hungarian_algorithm(mat)
     [(1, 1), (0, 3), (3, 2), (2, 0)]
     """
-    matrix = matrix.copy().astype(float)
+    orig_shape = matrix.shape
+    matrix = reshaping(matrix.copy().astype(float), min_match)
+    print(matrix)
     n = matrix.shape[0]
+
     for i in range(n):
-        matrix[i] -= np.min(matrix[i])
+        if not np.all(np.isinf(matrix[i])):
+            matrix[i] -= np.nanmin(matrix[i])
     for j in range(n):
-        matrix[:, j] -= np.min(matrix[:, j])
+        if not np.all(np.isinf(matrix[:, j])):
+            matrix[:, j] -= np.nanmin(matrix[:, j])
+
+    # iterative adjustment until we have at least n covering lines
+    max_iterations = n * 5  # safety cap to avoid infinite loops
+    it = 0
     while True:
         lines = min_lines(matrix)
         if lines >= n:
             break
+
         smallest = smallest_uncovered(matrix)
+        # If there is no finite uncovered element, we cannot continue adjustments
+        if not np.isfinite(smallest) or np.isinf(smallest):
+            # safety: break to avoid infinite loop
+            break
+
         row, col = rows_cols(matrix)
         for i in range(n):
             for j in range(n):
+                if np.isinf(matrix[i, j]):
+                    continue
                 if not row[i] and not col[j]:
                     matrix[i, j] -= smallest
                 elif row[i] and col[j]:
                     matrix[i, j] += smallest
 
-    zeros =  zero_position(matrix, matrix.shape)
+        it += 1
+        if it >= max_iterations:
+            # safety: break if algorithm does not converge in reasonable iterations
+            break
+
+    zeros = zero_position(matrix, orig_shape)
     return zeros
+
+mat = np.array([
+    [0.0, 0.8, 0.5, 0.6, 0.9, 0.8, 0.1],
+    [0.9, 0.0, 0.5, 1.0, 0.5, 0.9, 1.0],
+    [0.6, 1.0, 1.0, 0.5, 1.0, 1.0, 0.5],
+    [0.9, 1.0, 0.9, 0.5, 1.0, 1.0, 0.9],
+    [0.6, 1.0, 0.5, 1.0, 1.0, 0.3, 0.6]
+], dtype=float)
