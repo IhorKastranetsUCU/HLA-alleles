@@ -200,7 +200,6 @@ def hungarian_algorithm(matrix, min_match):
     """
     orig_shape = matrix.shape
     matrix = reshaping(matrix.copy().astype(float), min_match)
-    print(matrix)
     n = matrix.shape[0]
 
     for i in range(n):
@@ -210,8 +209,7 @@ def hungarian_algorithm(matrix, min_match):
         if not np.all(np.isinf(matrix[:, j])):
             matrix[:, j] -= np.nanmin(matrix[:, j])
 
-    # iterative adjustment until we have at least n covering lines
-    max_iterations = n * 5  # safety cap to avoid infinite loops
+    max_iterations = n * 5
     it = 0
     while True:
         lines = min_lines(matrix)
@@ -219,9 +217,7 @@ def hungarian_algorithm(matrix, min_match):
             break
 
         smallest = smallest_uncovered(matrix)
-        # If there is no finite uncovered element, we cannot continue adjustments
         if not np.isfinite(smallest) or np.isinf(smallest):
-            # safety: break to avoid infinite loop
             break
 
         row, col = rows_cols(matrix)
@@ -236,7 +232,6 @@ def hungarian_algorithm(matrix, min_match):
 
         it += 1
         if it >= max_iterations:
-            # safety: break if algorithm does not converge in reasonable iterations
             break
 
     zeros = zero_position(matrix, orig_shape)
