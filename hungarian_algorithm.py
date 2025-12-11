@@ -46,7 +46,7 @@ def zero_position(matrix: np.ndarray, original_shape: tuple) -> list:
     [(0, 0), (1, 1), (2, 2), (3, 3)]
     """
     n = matrix.shape[0]
-    zeros = (matrix == 0)
+    zeros = np.isclose(matrix, 0)
 
     rows = set()
     cols = set()
@@ -200,6 +200,7 @@ def hungarian_algorithm(matrix, min_match):
     """
     orig_shape = matrix.shape
     matrix = reshaping(matrix.copy().astype(float), min_match)
+    print(matrix)
     n = matrix.shape[0]
 
     for i in range(n):
@@ -237,10 +238,3 @@ def hungarian_algorithm(matrix, min_match):
     zeros = zero_position(matrix, orig_shape)
     return zeros
 
-mat = np.array([
-    [0.0, 0.8, 0.5, 0.6, 0.9, 0.8, 0.1],
-    [0.9, 0.0, 0.5, 1.0, 0.5, 0.9, 1.0],
-    [0.6, 1.0, 1.0, 0.5, 1.0, 1.0, 0.5],
-    [0.9, 1.0, 0.9, 0.5, 1.0, 1.0, 0.9],
-    [0.6, 1.0, 0.5, 1.0, 1.0, 0.3, 0.6]
-], dtype=float)
