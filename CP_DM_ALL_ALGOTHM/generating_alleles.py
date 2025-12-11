@@ -1,22 +1,62 @@
 import random
 
 LOCUS_LIST = ["A", "B", "DR"]
-VALID_ALLELES = {
-    "A": [
-        "01", "02", "03", "11", "23", "24", "25", "26", "29", "30",
-        "31", "32", "33", "68"
-    ],
+homozygosity_rate=0.15
 
-    "B": [
-        "07", "08", "13", "14", "15", "18", "27", "35", "37", "38",
-        "39", "40", "41", "44", "49", "50", "51", "52", "53", "55",
-        "57", "58"
-    ],
+A_ALLELE_WEIGHTS = {
+    "02": 350, 
+    "01": 180,
+    "03": 150,
+    "24": 130,
+    "11": 90,
+    "26": 60,
+    "68": 50,
+    "29": 40,
+    "30": 35,
+    "31": 35,
+    "32": 35,
+    "33": 25,
+    "23": 20,
+    "25": 20
+}
 
-    "DR": [
-        "01", "03", "04", "07", "08", "11", "12", "13",
-        "14", "15", "16"
-    ]
+B_ALLELE_WEIGHTS = {
+    "07": 160,
+    "44": 150,
+    "35": 140,
+    "08": 130,
+    "15": 120,
+    "18": 100,
+    "51": 80,
+    "27": 70,
+    "40": 60,
+    "57": 50,
+    "13": 45,
+    "38": 35,
+    "39": 35,
+    "14": 30,
+    "49": 25,
+    "50": 25,
+    "52": 20,
+    "53": 20,
+    "55": 20,
+    "58": 20,
+    "37": 15,
+    "41": 15
+}
+
+DR_ALLELE_WEIGHTS = {
+    "04": 200,
+    "15": 190,
+    "11": 140,
+    "13": 130,
+    "07": 120,
+    "03": 120,
+    "01": 110,
+    "08": 60,
+    "14": 50,
+    "12": 50,
+    "16": 30
 }
 
 def get_realistic_subtype():
@@ -45,19 +85,24 @@ def get_realistic_subtype():
 
 
 def generate_person_alleles():
-  '''
-  generates persons alleles
-  '''
     person_alleles = set()
     for locus in LOCUS_LIST:
+        if locus == 'A':
+            options = list(A_ALLELE_WEIGHTS.keys())
+            chances = list(A_ALLELE_WEIGHTS.values())
+        elif locus == 'B':
+            options = list(B_ALLELE_WEIGHTS.keys())
+            chances = list(B_ALLELE_WEIGHTS.values())
+        else:
+            options = list(DR_ALLELE_WEIGHTS.keys())
+            chances = list(DR_ALLELE_WEIGHTS.values())
         for i in range(2):
             if i != 1 or random.random() >= homozygosity_rate:
-                group = random.choice(VALID_ALLELES[locus])
+                group = random.choices(options, weights=chances)[0]
                 spec_prot = get_realistic_subtype()
                 allele = f"{locus}*{group:02}:{spec_prot:02}"
                 person_alleles.add(allele)
     return person_alleles
-
 
 def generate_database(recipients: int, donors: int, donor = False, recipient = False):
     if recipients > donors:
