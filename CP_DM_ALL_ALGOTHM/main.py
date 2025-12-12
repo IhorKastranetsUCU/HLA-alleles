@@ -2,7 +2,7 @@ import argparse
 import pandas as pd
 import matplotlib.pyplot as plt
 from generating_alleles import generate_database
-from CP_DM_ALL_ALGOTHM.get_real_data import get_data_from_csv
+from get_real_data import get_data_from_csv
 from hungarian_algorithm import hungarian_algorithm
 from cost_matrix import cost_matrix
 
@@ -17,6 +17,7 @@ def main(donor_file, recipient_file, min_match, use_random):
         donors = get_data_from_csv(donor_file)
         recipients = get_data_from_csv(recipient_file)
     first_matrix = cost_matrix(recipients, donors)
+    print(first_matrix)
     death = []
     for i, v_1 in enumerate(first_matrix):
         for j, v_2 in enumerate(v_1):
@@ -55,10 +56,13 @@ def main(donor_file, recipient_file, min_match, use_random):
         df.to_excel("results.xlsx", index=True)
         print("Таблиця збережена у results.xlsx")
     total = count_t + count_d + count_c
-    print("\nСтатистика збігів:")
-    print(f"  ✅ Успішні збіги: {count_t} ({count_t/total*100:.1f}%)")
-    print(f"  💀 Несумісні пари: {count_d} ({count_d/total*100:.1f}%)")
-    print(f"  ❌ Невідповідність: {count_c} ({count_c/total*100:.1f}%)")
+    if total != 0:
+        print("\nСтатистика збігів:")
+        print(f"  ✅ Успішні збіги: {count_t} ({count_t/total*100:.1f}%)")
+        print(f"  💀 Несумісні пари: {count_d} ({count_d/total*100:.1f}%)")
+        print(f"  ❌ Невідповідність: {count_c} ({count_c/total*100:.1f}%)")
+    else:
+        print("Немає збігів у алеях для порівняння")
     if len(recipients_set) <= 30:
         x_rec = [0] * len(recipients_set)
         y_rec = list(range(len(recipients_set)))
