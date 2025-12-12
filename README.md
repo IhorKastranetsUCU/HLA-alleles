@@ -146,7 +146,7 @@ python main.py --donor_file "none" --recipient_file "none" --min_match 0.5 --ran
 ### 3\. Запуск з реальними даними
 
 ```bash
-python main.py --donor_file "data/donors.csv" --recipient_file "data/recipients.csv" --min_match 0.4
+python main.py --donor_file "donors.csv" --recipient_file "recipients.csv" --min_match 0.4
 ```
 
 *Параметр `--min_match` (0.0 - 1.0) визначає поріг, вище якого трансплантація вважається неможливою (💀), задається користувачем.*
