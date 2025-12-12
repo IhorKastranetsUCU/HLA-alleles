@@ -48,7 +48,6 @@ def get_data_from_csv(filename:str) -> list[list[str, str]]:
             data_matrix.append(alleles)
     return data_matrix
 
-
 if __name__ == "__main__":
     import doctest
     print(doctest.testmod())
