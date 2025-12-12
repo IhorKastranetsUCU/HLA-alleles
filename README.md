@@ -115,16 +115,22 @@ CP_DM_ALL_ALGOTHM/
 
   * **NumPy:** Для високопродуктивних операцій з матрицями.
   * **Matplotlib:** Для візуалізації графа парувань та інтерпретації результатів.
-  * **Pandas/OpenPyXL:** Для генерації детальних звітів у форматі Excel.
+  * **Pandas:** Для генерації детальних звітів у форматі Excel.
 
 -----
 
 ## Інструкція з Використання
 
-### 1\. Встановлення залежностей
+### 1\. Встановлення необхідних бібілотек
+
 
 ```bash
 pip install numpy pandas matplotlib openpyxl
+```
+```bash
+import argparse
+import pandas as pd
+import matplotlib.pyplot as plt
 ```
 
 ### 2\. Запуск у режимі симуляції (Recommended)
