@@ -2,7 +2,7 @@ import argparse
 import pandas as pd
 import matplotlib.pyplot as plt
 from generating_alleles import generate_database
-from get_real_data import get_data_from_csv
+from CP_DM_ALL_ALGOTHM.get_real_data import get_data_from_csv
 from hungarian_algorithm import hungarian_algorithm
 from cost_matrix import cost_matrix
 
