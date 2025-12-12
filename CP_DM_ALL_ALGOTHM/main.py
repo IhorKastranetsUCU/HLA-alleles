@@ -17,7 +17,6 @@ def main(donor_file, recipient_file, min_match, use_random):
         donors = get_data_from_csv(donor_file)
         recipients = get_data_from_csv(recipient_file)
     first_matrix = cost_matrix(recipients, donors)
-    print(first_matrix)
     death = []
     for i, v_1 in enumerate(first_matrix):
         for j, v_2 in enumerate(v_1):
