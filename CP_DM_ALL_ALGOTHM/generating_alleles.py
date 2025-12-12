@@ -1,10 +1,10 @@
-import random
+aimport random
 
 LOCUS_LIST = ["A", "B", "DR"]
 homozygosity_rate=0.15
 
 A_ALLELE_WEIGHTS = {
-    "02": 350, 
+    "02": 350,
     "01": 180,
     "03": 150,
     "24": 130,
@@ -60,9 +60,9 @@ DR_ALLELE_WEIGHTS = {
 }
 
 def get_realistic_subtype():
-  '''
-  make realistic subtype for allele
-  '''
+    '''
+    make realistic subtype for allele
+    '''
     subtypes = [
         "01",               # Домінантний
         "02", "03", "04",   # Дуже часті
