@@ -94,7 +94,7 @@ $$A \setminus B = \{ x \in A \mid x \notin B \}$$
 
 **Формула розрахунку ваги ребра:**
 
-$$Cost(R, D) = \frac{|D_{alleles} \setminus R_{alleles}|}{|D_{alleles}|} 
+$$Cost(R, D) = \frac{|D_{alleles} \setminus R_{alleles}|}{|D_{alleles}|}#$$ 
 
 Де:
 
