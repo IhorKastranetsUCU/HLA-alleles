@@ -1,4 +1,4 @@
-aimport random
+import random
 
 LOCUS_LIST = ["A", "B", "DR"]
 homozygosity_rate=0.15
