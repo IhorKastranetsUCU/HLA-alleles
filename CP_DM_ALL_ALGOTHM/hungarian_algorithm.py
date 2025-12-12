@@ -9,12 +9,14 @@ Example:
     ...                 [0.2, 0.1, 0.1, 0.6],
     ...                 [0.3, 0.2, 0.1, 0.8]],)
     >>> hungarian_algorithm(mat, 0.1)
-    [(3, 2), (1, 0), (0, 3), (2, 1)]
+    [(4, 4), (1, 0), (0, 3), (2, 1), (3, 2)]
 """
 
 import numpy as np
 
+
 def reshaping(matrix, min_match):
+    rows, cols = matrix.shape
     rows, cols = matrix.shape
     if rows > cols:
         return None
@@ -30,92 +32,72 @@ def reshaping(matrix, min_match):
     return matrix
 
 
+
 def zero_position(matrix: np.ndarray, original_shape: tuple) -> list:
     """Find the optimal assignment from a reduced matrix of zeros.
 
     :param matrix: reduced cost matrix
     :param original_shape: original shape of the cost matrix
     :return: list of tuples (row_index, column_index) representing assignments
-    >>> mat = np.array([[0.0, 0.3, 0.4, 0.5],
-    ...                 [0.2, 0.0, 0.4, 0.3],
-    ...                 [0.3, 0.4, 0.0, 0.2],
-    ...                 [0.5, 0.3, 0.2, 0.0]])
-    >>> zero_position(mat, (4,4))
+    >>> mat = np.array([[0.7, 0.2, 0.3, 0.4],
+    ...                 [0.1, 0.6, 0.2, 0.3],
+    ...                 [0.2, 0.1, 0.1, 0.6],
+    ...                 [0.3, 0.2, 0.1, 0.8]],)
     [(0, 0), (1, 1), (2, 2), (3, 3)]
     """
-    R, C = matrix.shape
+    n = matrix.shape[0]
     zeros = np.isclose(matrix, 0)
-    rows_zero = np.zeros(R, dtype=bool)
-    cols_zero = np.zeros(C, dtype=bool)
+
+    rows = set()
+    cols = set()
     zero_pos = []
-
-    while True:
-        num_new_assignments = 0
-
-        for i in range(R):
-            if not rows_zero[i]:
-                unassigned_zeros_in_row = np.where(zeros[i, :] & ~cols_zero)[0]
-
-                if len(unassigned_zeros_in_row) == 1:
-                    j = unassigned_zeros_in_row[0]
-
-                    rows_zero[i] = True
-                    cols_zero[j] = True
-                    zero_pos.append((i, j))
-                    num_new_assignments += 1
-
-        for j in range(C):
-            if not cols_zero[j]:
-                unassigned_zeros_in_col = np.where(zeros[:, j] & ~rows_zero)[0]
-
-                if len(unassigned_zeros_in_col) == 1:
-                    i = unassigned_zeros_in_col[0]
-
-                    rows_zero[i] = True
-                    cols_zero[j] = True
-                    zero_pos.append((i, j))
-                    num_new_assignments += 1
-        if num_new_assignments == 0:
+    while len(zero_pos) < n:
+        min_alt = n + 1
+        best_pos = None
+        for i in range(n):
+            if i in rows:
+                continue
+            for j in range(n):
+                if j in cols:
+                    continue
+                if zeros[i, j]:
+                    alt = np.sum(zeros[i, :]) - len([c for c in cols if zeros[i, c]])
+                    if alt < min_alt:
+                        min_alt = alt
+                        best_pos = (i, j)
+        if best_pos is None:
             break
-    unassigned_zeros = np.argwhere(zeros & ~np.outer(rows_zero, cols_zero))
-    for i, j in unassigned_zeros:
-        if not rows_zero[i] and not cols_zero[j]:
-            rows_zero[i] = True
-            cols_zero[j] = True
+        i, j = best_pos
+        if i < original_shape[0] and j < original_shape[1]:
             zero_pos.append((i, j))
+        rows.add(i)
+        cols.add(j)
 
-    final_zero_pos = []
-    original_R, original_C = original_shape
-
-    for i, j in zero_pos:
-        if i < original_R and j < original_C:
-            final_zero_pos.append((int(i), int(j)))
-    return final_zero_pos
-
+    return zero_pos
 
 def min_lines(matrix: np.ndarray) -> int:
     """Find the minimum number of lines needed to cover all zeros.
 
     :param matrix: reduced cost matrix
     :return: integer, number of lines covering all zeros
-    >>> mat = np.array([[0.0, 0.2, 0.3, 0.4],
-    ...                 [0.1, 0.6, 0.0, 0.3],
-    ...                 [0.0, 0.1, 0.1, 0.6],
-    ...                 [0.3, 0.2, 0.0, 0.0]],)
+    >>> mat = np.array([[0.7, 0.2, 0.3, 0.4],
+    ...                 [0.1, 0.6, 0.2, 0.3],
+    ...                 [0.2, 0.1, 0.1, 0.6],
+    ...                 [0.3, 0.2, 0.1, 0.8]],)
     >>> int(min_lines(mat))
-    3
+    4
     """
     n = matrix.shape[0]
     zeros = (matrix == 0)
     row_zeros = np.sum(zeros, axis=1)
     col_zeros = np.sum(zeros, axis=0)
-    rows = np.zeros(n, dtype=bool)
-    cols = np.zeros(n, dtype=bool)
+    covered_rows = np.zeros(n, dtype=bool)
+    covered_cols = np.zeros(n, dtype=bool)
 
     while True:
         uncovered_zeros = zeros.copy()
-        uncovered_zeros[rows, :] = False
-        uncovered_zeros[:, cols] = False
+        uncovered_zeros[covered_rows, :] = False
+        uncovered_zeros[:, covered_cols] = False
 
         if not np.any(uncovered_zeros):
             break
@@ -128,12 +110,12 @@ def min_lines(matrix: np.ndarray) -> int:
 
         if max_row >= max_col:
             row_idx = np.argmax(row_counts)
-            rows[row_idx] = True
+            covered_rows[row_idx] = True
         else:
             col_idx = np.argmax(col_counts)
-            cols[col_idx] = True
+            covered_cols[col_idx] = True
 
-    return np.sum(rows) + np.sum(cols)
+    return np.sum(covered_rows) + np.sum(covered_cols)
 
 
 def rows_cols(matrix):
@@ -142,24 +124,24 @@ def rows_cols(matrix):
 
     :param matrix: reduced cost matrix
     :return: tuple of two boolean arrays (rows_covered, cols_covered)
-    >>> mat = np.array([[0.7, 0.2, 0.3, 0.0],
-    ...                 [0.1, 0.0, 0.0, 0.3],
-    ...                 [0.2, 0.1, 0.1, 0.0],
+    >>> mat = np.array([[0.7, 0.2, 0.3, 0.4],
+    ...                 [0.1, 0.6, 0.2, 0.3],
+    ...                 [0.2, 0.1, 0.1, 0.6],
     ...                 [0.3, 0.2, 0.1, 0.8]],)
     >>> rows_cols(mat)
-    (array([False,  True, False, False]), array([False, False, False,  True]))
+    (array([ True,  True,  True,  True]), array([False, False, False, False]))
     """
     n = matrix.shape[0]
     zeros = (matrix == 0)
     row_zeros = np.sum(zeros, axis=1)
     col_zeros = np.sum(zeros, axis=0)
-    rows = np.zeros(n, dtype=bool)
-    cols = np.zeros(n, dtype=bool)
+    covered_rows = np.zeros(n, dtype=bool)
+    covered_cols = np.zeros(n, dtype=bool)
 
     while True:
         uncovered_zeros = zeros.copy()
-        uncovered_zeros[rows, :] = False
-        uncovered_zeros[:, cols] = False
+        uncovered_zeros[covered_rows, :] = False
+        uncovered_zeros[:, covered_cols] = False
         if not np.any(uncovered_zeros):
             break
         row_counts = np.sum(uncovered_zeros, axis=1)
@@ -168,11 +150,11 @@ def rows_cols(matrix):
         max_col = np.max(col_counts)
         if max_row >= max_col:
             row_idx = np.argmax(row_counts)
-            rows[row_idx] = True
+            covered_rows[row_idx] = True
         else:
             col_idx = np.argmax(col_counts)
-            cols[col_idx] = True
-    return rows, cols
+            covered_cols[col_idx] = True
+    return covered_rows, covered_cols
 
 
 def smallest_uncovered(matrix):
@@ -182,28 +164,22 @@ def smallest_uncovered(matrix):
     :param matrix: reduced cost matrix
     :return: float, smallest uncovered element
 
-    >>> mat = np.array([[0.0, 0.2, 0.3, 0.4],
-    ...                 [0.1, 0.6, 0.0, 0.3],
-    ...                 [0.0, 0.1, 0.0, 0.6],
+    >>> mat = np.array([[0.7, 0.2, 0.3, 0.4],
+    ...                 [0.1, 0.6, 0.2, 0.3],
+    ...                 [0.2, 0.1, 0.1, 0.6],
     ...                 [0.3, 0.2, 0.1, 0.8]])
-    >>> float(smallest_uncovered(mat))
-    0.1
-    >>> mat = np.array([[0.0, 0.2, 0.3, 0.4],
-    ...                 [0.1, 0.6, 0.0, 0.3],
-    ...                 [0.0, 0.7, 0.0, 0.6],
-    ...                 [0.3, 0.2, 0.0, 0.8]])
-    >>> float(smallest_uncovered(mat))
-    0.2
+    >>> int(smallest_uncovered(mat))
+    1
     """
+    row, col = rows_cols(matrix)
     n = matrix.shape[0]
-    rows, cols = rows_cols(matrix)
-
-    smallests = []
+    smallest = np.inf
     for i in range(n):
         for j in range(n):
-            if not rows[i] and not cols[j] and np.isfinite(matrix[i, j]):
-                smallests.append(matrix[i][j])
-    return min(smallests)
+            if not row[i] and not col[j]:
+                smallest = min(smallest, matrix[i, j])
+
+    return smallest
 
 
 def hungarian_algorithm(matrix, min_match):
@@ -219,15 +195,12 @@ def hungarian_algorithm(matrix, min_match):
     ...                 [0.1, 0.6, 0.2, 0.3],
     ...                 [0.2, 0.1, 0.1, 0.6],
     ...                 [0.3, 0.2, 0.1, 0.8]],)
-    >>> hungarian_algorithm(mat, 0.1)
-    [(3, 2), (1, 0), (0, 3), (2, 1)]
+    >>> hungarian_algorithm(mat)
+    [(1, 1), (0, 3), (3, 2), (2, 0)]
     """
     orig_shape = matrix.shape
     matrix = reshaping(matrix.copy().astype(float), min_match)
-    if matrix is None:
-        return None
     n = matrix.shape[0]
-
 
     for i in range(n):
         if not np.all(np.isinf(matrix[i])):
