@@ -132,7 +132,7 @@ pip install numpy pandas matplotlib openpyxl
 Генерує синтетичні дані, що статистично відповідають реальній популяції. Ідеально для демонстрації алгоритму.
 
 ```bash
-python CP_DM_ALL_ALGOTHM/main.py --donor_file "none" --recipient_file "none" --min_match 0.5 --random
+python main.py --donor_file "none" --recipient_file "none" --min_match 0.5 --random
 ```
 
 *Система запитає кількість донорів та реципієнтів після запуску.*
@@ -140,7 +140,7 @@ python CP_DM_ALL_ALGOTHM/main.py --donor_file "none" --recipient_file "none" --m
 ### 3\. Запуск з реальними даними
 
 ```bash
-python CP_DM_ALL_ALGOTHM/main.py --donor_file "data/donors.csv" --recipient_file "data/recipients.csv" --min_match 0.4
+python main.py --donor_file "data/donors.csv" --recipient_file "data/recipients.csv" --min_match 0.4
 ```
 
 *Параметр `--min_match` (0.0 - 1.0) визначає поріг, вище якого трансплантація вважається неможливою (💀), задається користувачем.*
